@@ -1,208 +1,814 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-	<meta name="generator" content="Hugo 0.146.1">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>張紘輔 | 個人網站</title>
+    <!-- 引入 FontAwesome 圖示庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* =========================================
+           基礎色彩與字體設定 (預設淺色模式)
+           ========================================= */
         :root {
-            --accent-color: #FF4D4D;
-            --font-size: 17.5px;
+            --primary-color: #2563eb; 
+            --primary-hover: #1d4ed8;
+            --primary-glow: rgba(37, 99, 235, 0.3);
+            --bg-light: #f8fafc;
+            --bg-white: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-hover: 0 15px 30px -5px var(--primary-glow);
+        }
+
+        /* =========================================
+           深色模式設定 (Dark Mode Variables)
+           ========================================= */
+        [data-theme="dark"] {
+            --primary-color: #60a5fa; 
+            --primary-hover: #93c5fd;
+            --primary-glow: rgba(96, 165, 250, 0.25);
+            --bg-light: #0f172a;     
+            --bg-white: #1e293b;     
+            --text-main: #f8fafc;    
+            --text-muted: #94a3b8;   
+            --border-color: #334155;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            overflow-x: hidden;
+        }
+
+        /* =========================================
+           導覽列
+           ========================================= */
+        nav {
+            background-color: var(--bg-white);
+            box-shadow: var(--shadow-sm);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.4s ease;
+        }
+
+        .nav-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .logo:hover {
+            transform: scale(1.05);
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            position: relative;
+            padding-bottom: 5px;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        /* 特效：導覽列底線動畫 */
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: var(--primary-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--primary-color);
+        }
+
+        .nav-links a:hover::after, .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        .theme-toggle:hover {
+            color: var(--primary-color);
+            transform: rotate(30deg) scale(1.1);
+        }
+
+        /* =========================================
+           頁面切換與動畫邏輯
+           ========================================= */
+        main {
+            margin-top: 80px; 
+            min-height: calc(100vh - 150px);
+        }
+
+        .page-section {
+            display: none; 
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .page-section.active {
+            display: block; 
+        }
+
+        /* 特效：階梯式由下往上浮現 (Staggered Fade-In-Up) */
+        .animate-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .animate-up.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* =========================================
+           首頁風格 (Hero Section)
+           ========================================= */
+        .hero {
+            display: flex;
+            align-items: flex-start;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .hero-img-container {
+            flex-shrink: 0;
+            position: sticky;
+            top: 100px;
+        }
+
+        .hero-img {
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--bg-white);
+            box-shadow: var(--shadow-md);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+        }
+
+        /* 特效：頭像懸浮發光 */
+        .hero-img:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px -10px var(--primary-glow);
+            border-color: var(--primary-color);
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+            letter-spacing: -1px;
+        }
+
+        /* 特效：打字機游標 */
+        .hero-content h2 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            min-height: 2rem; /* 防止打字時高度跳動 */
+        }
+        
+        .typewriter-cursor {
+            border-right: 2px solid var(--primary-color);
+            animation: blink 0.75s step-end infinite;
+            padding-right: 5px;
+        }
+        @keyframes blink {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary-color); }
+        }
+
+        .intro-text p {
+            margin-bottom: 1.2rem;
+            font-size: 1.05rem;
+            color: var(--text-muted);
+            text-align: justify;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--bg-white);
+            color: var(--text-main);
+            text-decoration: none;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-size: 1.2rem;
+        }
+
+        .social-links a:hover {
+            background-color: var(--primary-color);
+            color: var(--bg-white);
+            transform: translateY(-5px) scale(1.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px -5px var(--primary-glow);
+        }
+
+        /* =========================================
+           GitHub 內容庫展示區塊
+           ========================================= */
+        .github-showcase {
+            margin-top: 4rem;
+            padding-top: 3rem;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        .github-showcase h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .repo-card {
+            background-color: var(--bg-white);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            /* 特效：平滑的 Q 彈動畫 */
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        .repo-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-8px);
+        }
+
+        .repo-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.8rem;
+        }
+
+        .repo-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+        }
+
+        .repo-title:hover {
+            text-decoration: underline;
+        }
+
+        .repo-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .repo-bottom {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .lang-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        /* =========================================
+           通用標題與卡片設計
+           ========================================= */
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
+            color: var(--text-main);
+            position: relative;
+            display: inline-block;
+        }
+
+        /* 特效：標題底部漸層裝飾線 */
+        .section-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 60%;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+        }
+
+        .card {
+            background-color: var(--bg-white);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            /* 特效：平滑的 Q 彈動畫 */
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+                        box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* 技能標籤 */
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: 1rem;
+        }
+
+        .skill-tag {
+            background-color: rgba(37, 99, 235, 0.08);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        /* 特效：標籤 Hover 發光放大 */
+        .skill-tag:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px -5px var(--primary-glow);
+        }
+
+        [data-theme="dark"] .skill-tag {
+            background-color: rgba(96, 165, 250, 0.1);
+            border-color: rgba(96, 165, 250, 0.2);
+        }
+
+        [data-theme="dark"] .skill-tag:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        /* 頁腳 */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-white);
+            transition: background-color 0.4s ease;
+        }
+
+        /* =========================================
+           RWD 響應式設計 (手機版)
+           ========================================= */
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .hero-img-container {
+                position: static;
+            }
+            .social-links {
+                justify-content: center;
+            }
+            .nav-links {
+                display: none; 
+            }
+            .mobile-nav {
+                display: flex;
+                justify-content: center;
+                gap: 0.8rem;
+                flex-wrap: wrap;
+                margin-top: 1rem;
+                padding: 0 1rem;
+            }
+            .mobile-nav button {
+                padding: 8px 16px;
+                border-radius: 20px;
+                border: 1px solid var(--border-color);
+                background-color: var(--bg-white);
+                color: var(--text-main);
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            .mobile-nav button:active {
+                transform: scale(0.95);
+                background-color: var(--primary-color);
+                color: white;
+            }
+            nav { position: static; }
+            main { margin-top: 0; }
+        }
+        @media (min-width: 769px) {
+            .mobile-nav { display: none; }
         }
     </style>
-
-    
-    
-    
-    
-    
-    
-
-    
-    <title>tofu website</title>
-    <meta name="description" content="一位熱愛資訊的高中生">
-    <meta name="keywords" content=''>
-
-    <meta property="og:url" content="https://tofulab.org/">
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="tofu website">
-    <meta property="og:description" content="一位熱愛資訊的高中生">
-    <meta property="og:image" content="https://tofulab.org/images/head.jpeg">
-    <meta property="og:image:secure_url" content="https://tofulab.org/images/head.jpeg">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="tofu website">
-    <meta name="twitter:description" content="一位熱愛資訊的高中生">
-    <meta property="twitter:domain" content="https://tofulab.org/">
-    <meta property="twitter:url" content="https://tofulab.org/">
-    <meta name="twitter:image" content="https://tofulab.org/images/head.jpeg">
-
-    
-    <link rel="canonical" href="https://tofulab.org/">
-
-    
-    <link rel="stylesheet" type="text/css" href="/css/normalize.min.css" media="print">
-
-    
-    <link rel="stylesheet" type="text/css" href="/css/main.min.css">
-
-    
-    <link id="dark-theme" rel="stylesheet" href="/css/dark.min.css">
-
-    
-    <script src="/js/bundle.min.a036ebe92c17ea3f0c07761c2135b82bec6f37c8efb7f49ddad1f28c22fc4769.js" integrity="sha256-oDbr6SwX6j8MB3YcITW4K&#43;xvN8jvt/Sd2tHyjCL8R2k="></script>
-
-    
-    
 </head>
 <body>
-        <script>
+
+    <!-- 導覽列 -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo" onclick="switchPage('home')">Hong-Fu<span>.</span></a>
             
-            setThemeByUserPref();
-        </script><header class="header">
-    <nav class="header-nav">
-
-        
-        <div class="avatar">
-            <a href="https://tofulab.org/">
-                <img src='images/head.jpeg' alt="avatar">
-            </a>
-        </div>
-        
-
-        <div class="nav-title">
-            <a class="nav-brand" href="https://tofulab.org/">tofu website</a>
-        </div>
-
-        <div class="nav-links">
-            
-
-            <span class="nav-icons-divider"></span>
-            <div class="nav-link dark-theme-toggle">
-                <span class="sr-only dark-theme-toggle-screen-reader-target">theme</span>
-                <a aria-hidden="true" role="switch">
-                    <span class="theme-toggle-icon" data-feather="moon"></span>
-                </a>
+            <div class="nav-right">
+                <div class="nav-links">
+                    <a class="nav-item active" onclick="switchPage('home')">首頁</a>
+                    <a class="nav-item" onclick="switchPage('about')">關於我</a>
+                    <a class="nav-item" onclick="switchPage('experience')">經歷專案</a>
+                    <a class="nav-item" onclick="switchPage('skills')">技能證照</a>
+                </div>
+                <!-- 深淺色切換按鈕 -->
+                <button class="theme-toggle" id="theme-btn" title="切換深色/淺色模式">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
-
-            <div class="nav-link" id="hamburger-menu-toggle">
-                <span class="sr-only hamburger-menu-toggle-screen-reader-target">menu</span>
-                <a aria-checked="false" aria-labelledby="hamburger-menu-toggle" id="hamburger-menu-toggle-target" role="switch">
-                    <span data-feather="menu"></span>
-                </a>
-            </div>
-
-            
-            <ul class="nav-hamburger-list visibility-hidden">
-                
-                <li class="nav-item dark-theme-toggle">
-                    <span class="sr-only dark-theme-toggle-screen-reader-target">theme</span>
-                    <a role="switch">
-                        <span class="theme-toggle-icon" data-feather="moon"></span>
-                    </a>
-                </li>
-            </ul>
-
         </div>
     </nav>
-</header>
-<main id="content">
-<section class="home-about">
-	<div class="avatar">
-        
-        <img class=size-m src='images/head.jpeg' alt="avatar">
-        
-	</div>
 
-    <h1>tofu website</h1>
-    
-        <h2>一位熱愛資訊的高中生</h2>
-    
-
-</section>
-
-<div class="flex-break"></div>
-
-
-<div class="gk-social-icons">
-    <ul class="gk-social-icons-list">
-        
-        <li class="gk-social-icon">
-            <a href="https://github.com/hongfu553"  aria-label="Learn more on github">
-                <img class="svg-inject" src="/svg/icons/github.svg" alt="">
-            </a>
-        </li>
-        
-        <li class="gk-social-icon">
-            <a href="https://www.instagram.com/tofu_jazz"  aria-label="Learn more on Instagram">
-                <img class="svg-inject" src="/svg/icons/instagram.svg" alt="">
-            </a>
-        </li>
-        
-        <li class="gk-social-icon">
-            <a href="https://open.spotify.com/user/31hr6cijg4p3coxdgn3bhjnjfcou?si=d52c04d467ad4e62"  aria-label="Learn more on spotify">
-                <img class="svg-inject" src="/svg/icons/spotify.svg" alt="">
-            </a>
-        </li>
-        
-        <li class="gk-social-icon">
-            <a href="https://discordapp.com/users/726369497136758865"  aria-label="Learn more on discord">
-                <img class="svg-inject" src="/svg/icons/discord.svg" alt="">
-            </a>
-        </li>
-        
-        <li class="gk-social-icon">
-            <a href="mailto:me@tofulab.org"  aria-label="Learn more on Email">
-                <img class="svg-inject" src="/svg/icons/email.svg" alt="">
-            </a>
-        </li>
-        
-    </ul>
-</div>
-
-
-
-
-
-
-    <div class="home-posts list-posts">
-        <h2></h2>
-
-    
-
-    
+    <!-- 手機版 App 風格底部導覽列 -->
+    <div class="mobile-nav">
+        <button class="nav-item active" onclick="switchPage('home')">
+            <i class="fas fa-home"></i>
+            <span>首頁</span>
+        </button>
+        <button class="nav-item" onclick="switchPage('about')">
+            <i class="fas fa-user-tie"></i>
+            <span>關於我</span>
+        </button>
+        <button class="nav-item" onclick="switchPage('experience')">
+            <i class="fas fa-laptop-code"></i>
+            <span>經歷</span>
+        </button>
+        <button class="nav-item" onclick="switchPage('skills')">
+            <i class="fas fa-certificate"></i>
+            <span>技能</span>
+        </button>
     </div>
 
+    <main>
+        <!-- 首頁 (Home) -->
+        <section id="home" class="page-section active">
+            <div class="hero">
+                <div class="hero-img-container animate-up">
+                    <!-- 請在這裡替換成你真實照片的網址或相對路徑 -->
+                    <img src="https://i.postimg.cc/g0nJTGjr/tofu.jpg" alt="張紘輔的照片" class="hero-img">
+                </div>
+                <div class="hero-content">
+                    <h1 class="animate-up">張紘輔</h1>
+                    <h2 class="animate-up"><span id="typewriter-text"></span><span class="typewriter-cursor"></span></h2>
+                    
+                    <div class="intro-text">
+                        <p class="animate-up">你好！我是張紘輔，一名熱衷於開源技術與系統架構的軟體開發者。我喜歡在鍵盤上敲擊出解決方案，享受將點子轉化為實際應用的成就感。</p>
+                        
+                        <p class="animate-up">我的資訊旅程始於國小，當時為了與朋友在《Minecraft》中連線，我從零開始摸索 VPN 串接、網路架構，甚至自己寫了 Python Discord 機器人來遠端控制伺服器的啟動。這個解決問題的過程，意外點燃了我對資訊技術的熱情，讓我立志成為身邊朋友與社群的「資訊小幫手」。</p>
+                        
+                        <p class="animate-up">目前我擅長 Python 開發、伺服器架設管理，以及雲端平台（PaaS/LaaS）的部署。除了精進硬核的資訊技術，我也積極參與 SITCON 等科技社群，並計畫考取 Google AI 證照。</p>
+                        
+                        <p class="animate-up">工作與程式碼之外，我熱愛動漫與日本文化，未來的夢想是前往日本擔任交換學生，並期待能將語言能力與資訊專業結合，站上國際舞台持續發光發熱。</p>
+                    </div>
+                    
+                    <div class="social-links animate-up">
+                        <a href="https://github.com/hongfu553" target="_blank" title="GitHub"><i class="fab fa-github"></i></a>
+                        <a href="https://www.instagram.com/tofu_jazz" target="_blank" title="Personal Blog"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="mailto:me@tofulab.org" title="Email"><i class="fas fa-envelope"></i></a>
+                    </div>
 
+                    <!-- GitHub 內容庫展示區塊 -->
+                    <div class="github-showcase animate-up">
+                        <h3><i class="fab fa-github"></i> 開源專案庫 (Pinned Repositories)</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.95rem;">這裡展示了我近期參與或獨立開發的重點專案：</p>
+                        
+                        <div class="repo-grid">
+                            <div class="repo-card">
+                                <div>
+                                    <div class="repo-top">
+                                        <i class="far fa-folder-open" style="color: var(--text-muted);"></i>
+                                        <a href="https://github.com/sitcon-hackathon2024-archive/team7_Taipei-City-Dashboard" target="_blank" class="repo-title">Taipei-City-Dashboard</a>
+                                    </div>
+                                    <p class="repo-desc">SITCON Hackathon 2024 參賽作品。介接 TDX 運輸資料流通服務 API，統計台北市公車誤點資訊並進行資料庫串接處理。</p>
+                                </div>
+                                <div class="repo-bottom">
+                                    <span><span class="lang-dot" style="background-color: #00ADD8;"></span>Go</span>
+                                    <span><i class="far fa-star"></i> 團隊協作</span>
+                                </div>
+                            </div>
 
-        </main><footer class="footer">
-    
-    
+                            <div class="repo-card">
+                                <div>
+                                    <div class="repo-top">
+                                        <i class="far fa-folder-open" style="color: var(--text-muted);"></i>
+                                        <a href="https://github.com/hongfu553" target="_blank" class="repo-title">Minecraft-Server-Bot</a>
+                                    </div>
+                                    <p class="repo-desc">基於 Python 開發的 Discord 機器人，可透過頻道指令遠端自動啟動/關閉放置於 VPS 雲端主機上的遊戲伺服器。</p>
+                                </div>
+                                <div class="repo-bottom">
+                                    <span><span class="lang-dot" style="background-color: #3572A5;"></span>Python</span>
+                                    <span><i class="fas fa-network-wired"></i> Server</span>
+                                </div>
+                            </div>
+                            
+                            <div class="repo-card">
+                                <div>
+                                    <div class="repo-top">
+                                        <i class="far fa-folder-open" style="color: var(--text-muted);"></i>
+                                        <a href="https://github.com/hongfu553" target="_blank" class="repo-title">Personal-Portfolio</a>
+                                    </div>
+                                    <p class="repo-desc">單頁式個人簡歷網站。支援深/淺色模式切換，全靜態代碼開發，具備微互動特效與響應式 RWD 網頁設計。</p>
+                                </div>
+                                <div class="repo-bottom">
+                                    <span><span class="lang-dot" style="background-color: #e34c26;"></span>HTML/CSS</span>
+                                    <span><i class="far fa-star"></i> Frontend</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-    
+                </div>
+            </div>
+        </section>
 
-    
+        <!-- 關於我 (About) -->
+        <section id="about" class="page-section">
+            <h2 class="section-title animate-up">關於我</h2>
+            <div class="card animate-up">
+                <h3><i class="fas fa-user-tie"></i> 學生會長與領導經歷</h3>
+                <p>擔任第六屆學生會會長及畢聯會總籌。從零開始策劃「新生領航營」與「社團成果發表會」，帶領團隊處理大規模人員管理與溝通協調。這段經歷不僅培養了我的領導力與應變能力，也讓我學會如何將團隊效能最大化。</p>
+            </div>
+            <div class="card animate-up">
+                <h3><i class="fas fa-biking"></i> 111年單車環島挑戰</h3>
+                <p>國中畢業後，我參與了為期 12 天、全長 1,200 公里的單車環島挑戰。旅途中學會了配速、團隊相互支援以及如何在極限狀態下堅持下去。與其安逸度日，我更傾向於勇敢踏出舒適圈，突破自我。</p>
+            </div>
+            <div class="card animate-up">
+                <h3><i class="fas fa-tshirt"></i> 跨域挑戰：畢業展演模特兒</h3>
+                <p>協助流行服飾科擔任走秀模特兒。雖然沒有相關經驗，但透過反覆練習台步與適應服裝，最終在舞台上自信展現。這次經驗讓我突破了舒適圈，也更理解並尊重不同專業領域背後的付出。</p>
+            </div>
+        </section>
 
-        
+        <!-- 經歷專案 (Experience) -->
+        <section id="experience" class="page-section">
+            <h2 class="section-title animate-up">經歷與專案</h2>
+            <div class="card animate-up">
+                <h3><i class="fas fa-laptop-code"></i> SITCON Hackathon 2024 (隊伍：菜就多練)</h3>
+                <p><strong>專案內容：</strong>參與台北城市儀表板優化，處理 TDX 運輸資料 API，計算出公車誤點資訊並製作成 API 服務。</p>
+                <p><strong>反思與成長：</strong>在有限時間內面對陌生的 Go 語言後端與 pgAdmin 資料庫，我們學會了快速閱讀程式碼、調整策略。雖然熬夜到凌晨四點，但透過與各路高手交流，收穫了寶貴的實戰經驗與社群人脈。</p>
+                <a href="https://github.com/sitcon-hackathon2024-archive/team7_Taipei-City-Dashboard" target="_blank" style="color: var(--primary-color); text-decoration: none; display: inline-block; margin-top: 10px; font-weight: 500;"><i class="fas fa-external-link-alt"></i> 查看專案原始碼</a>
+            </div>
+            <div class="card animate-up">
+                <h3><i class="fas fa-robot"></i> Powertech 青少年科技創作競賽</h3>
+                <p><strong>獎項：</strong>全國賽冠軍 (2023) / 北區賽亞軍 (2022) / 北區賽季軍 (2024)</p>
+                <p>透過實際動手製作科技模型，將所學知識轉化為具體的創作，展現了解決問題與團隊合作的默契。</p>
+            </div>
+            <div class="card animate-up">
+                <h3><i class="fas fa-users"></i> SITCON 學生計算機年會 (2024、2025)</h3>
+                <p>積極參與資訊社群盛會，學習前端特效、物聯網通訊等最新技術。期望未來也能站上 SITCON 的舞台，分享自己的經驗與見解。</p>
+            </div>
+        </section>
+
+        <!-- 技能證照 (Skills) -->
+        <section id="skills" class="page-section">
+            <h2 class="section-title animate-up">技能與證照</h2>
             
-        
+            <div class="card animate-up">
+                <h3><i class="fas fa-code"></i> 技術專長</h3>
+                <p>從編寫程式碼到架設管理雲端伺服器，具備軟硬體整合能力。</p>
+                <div class="skills-container">
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">NodeJS Express</span>
+                    <span class="skill-tag">Server 架設</span>
+                    <span class="skill-tag">Cloudflare 管理</span>
+                    <span class="skill-tag">Linux / Windows / macOS</span>
+                    <span class="skill-tag">LaaS / PaaS 雲端部署</span>
+                    <span class="skill-tag">電腦組裝</span>
+                    <span class="skill-tag">Android 刷機</span>
+                </div>
+            </div>
 
-        
+            <div class="card animate-up">
+                <h3><i class="fas fa-certificate"></i> 專業證照</h3>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 10px; font-size: 1.1rem;"></i>電腦硬體裝修 <strong>&nbsp;乙級</strong> / 丙級</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 10px; font-size: 1.1rem;"></i>電腦軟體應用 <strong>&nbsp;丙級</strong></li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 10px; font-size: 1.1rem;"></i>工業電子 <strong>&nbsp;丙級</strong></li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 10px; font-size: 1.1rem;"></i>PCP 嵌入式國際認證</li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 10px; font-size: 1.1rem;"></i>PVQC 專業英文認證 (ICT / EE / AI 專業級)</li>
+                </ul>
+            </div>
+        </section>
+    </main>
 
-        
-        
+    <footer>
+        <p>&copy; 2024 Chang Hong-Fu. All rights reserved.</p>
+    </footer>
 
-        
+    <!-- JavaScript 處理邏輯 -->
+    <script>
+        // 1. 打字機特效邏輯
+        const typeText = "從遊戲出發，走向資訊的世界";
+        const typeElement = document.getElementById('typewriter-text');
+        let typeIndex = 0;
+        let isTypingStarted = false;
 
-    
+        function startTypewriter() {
+            if (isTypingStarted) return; // 避免重複觸發
+            isTypingStarted = true;
+            typeElement.innerHTML = '';
+            typeIndex = 0;
+            
+            function type() {
+                if (typeIndex < typeText.length) {
+                    typeElement.innerHTML += typeText.charAt(typeIndex);
+                    typeIndex++;
+                    setTimeout(type, 100); // 打字速度 (毫秒)
+                }
+            }
+            // 延遲一點點開始打字，視覺效果更好
+            setTimeout(type, 400); 
+        }
 
-    
-        <span>&copy; 2025 CHANG-HONGFU</span>
-    
+        // 2. 頁面切換與動畫觸發邏輯
+        function switchPage(pageId) {
+            // 切換 active class
+            const pages = document.querySelectorAll('.page-section');
+            pages.forEach(page => page.classList.remove('active'));
 
-    <span>
-        Made with &#10084;&#65039; using <a target="_blank" href="https://github.com/gokarna-theme/gokarna-hugo">Gokarna</a>
-    </span>
-</footer>
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            const targetPage = document.getElementById(pageId);
+            targetPage.classList.add('active');
+
+            // 確保電腦版與手機版的按鈕都能同時被正確標示為 active
+            const activeNavs = Array.from(navItems).filter(item => item.getAttribute('onclick') && item.getAttribute('onclick').includes(pageId));
+            activeNavs.forEach(nav => nav.classList.add('active'));
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // 觸發該頁面的階梯式浮現動畫 (Staggered Animation)
+            triggerAnimations(targetPage);
+
+            // 如果是首頁，觸發打字機
+            if(pageId === 'home') {
+                startTypewriter();
+            }
+        }
+
+        function triggerAnimations(container) {
+            const elements = container.querySelectorAll('.animate-up');
+            // 先重置動畫狀態
+            elements.forEach(el => {
+                el.classList.remove('show');
+                el.style.transitionDelay = '0s';
+            });
+
+            // 稍微延遲後，依序加上 delay 並顯示
+            setTimeout(() => {
+                elements.forEach((el, index) => {
+                    // 設定每個元素相差 0.1 秒浮現
+                    el.style.transitionDelay = `${index * 0.1}s`;
+                    el.classList.add('show');
+                });
+            }, 50);
+        }
+
+        // 3. 深色/淺色模式切換邏輯
+        const themeBtn = document.getElementById('theme-btn');
+        const rootElement = document.documentElement;
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            rootElement.setAttribute('data-theme', 'dark');
+            themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const currentTheme = rootElement.getAttribute('data-theme');
+            if (currentTheme === 'dark') {
+                rootElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            } else {
+                rootElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+        });
+
+        // 初始載入時觸發首頁動畫
+        window.onload = () => {
+            triggerAnimations(document.getElementById('home'));
+            startTypewriter();
+        };
+    </script>
 </body>
 </html>
